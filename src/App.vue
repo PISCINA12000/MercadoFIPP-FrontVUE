@@ -1,14 +1,16 @@
 <template>
-  <FormCategoria msg="Cadastro de Categorias"/>
+  <!-- <FormCategoria msg="Cadastro de Categorias"/> -->
+  <FormUsuario msg="Cadastro de Usuários"/>
 </template>
 
 <script>
-  import FormCategoria from './components/FormCategoria.vue'
+  import FormCategoria from './components/FormCategoria.vue';
+  import FormUsuario from './components/FormUsuario.vue';
 
   export default {
     name: 'App',
     components: {
-      FormCategoria
+      FormUsuario
     }
   }
 </script>

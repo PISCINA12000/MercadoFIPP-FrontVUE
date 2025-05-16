@@ -5,7 +5,7 @@
 
   <!--Formulário-->
   <div v-if="formOn">
-    <form @submit.prevent="this.gravarCategoria()">
+    <form @submit.prevent="this.gravarUsuario()">
       <label for="id">ID</label>
       <input
         type="text"
@@ -16,41 +16,64 @@
         disabled
       />
 
-      <label for="nome">Nome</label>
+      <label for="name">Nome</label>
       <input
         type="text"
-        id="nome"
-        name="nome"
-        v-model="nome"
-        placeholder="O nome aqui.."
+        id="name"
+        name="name"
+        v-model="name"
+        placeholder="O name aqui.."
+      />
+
+      <label for="senha">Senha</label>
+      <input
+        type="text"
+        id="senha"
+        name="senha"
+        v-model="senha"
+        placeholder="A senha aqui.."
+      />
+
+      <label for="nivel">Nível</label>
+      <input
+        type="text"
+        id="nivel"
+        name="nivel"
+        v-model="nivel"
+        placeholder="Nível aqui.."
+        maxlength="1"
       />
 
       <input type="submit" value="Cadastrar" />
     </form>
   </div>
 
-  <!--Botão para cadastrar nova categoria-->
+  <!--Botão para cadastrar novo usuário-->
   <div style="display: flex; justify-content: end">
     <!--Maneira de chamar o evento com o VUE-->
     <!--@.... ou v-on:...  as duas maneiras funcionam-->
-    <button @click="this.mostrarForm(true)">Nova Categoria</button>
+    <button @click="this.mostrarForm(true)">Novo Usuário</button>
   </div>
 
-  <!--Tabela-->
+  <!--Tabela de Usuários-->
   <table id="customers">
     <thead>
       <tr>
         <th>Id</th>
         <th>Nome</th>
+        <th>Senha</th>
+        <th>Nível</th>
         <th colspan="2">Ações</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="cat in categorias" :key="cat.id">
-        <td>{{ cat.id }}</td>
-        <td>{{ cat.nome }}</td>
-        <td><button @click="this.editarCategoria(cat.id)">Alterar</button></td>
-        <td><button @click="this.excluirCategoria(cat.id)">Excluir</button></td>
+      <tr v-for="usu in usuarios" :key="usu.id">
+        <td>{{ usu.id }}</td>
+        <td>{{ usu.name }}</td>
+        <td>{{ usu.senha }}</td>
+        <td>{{ usu.nivel }}</td>
+        <td><button @click="this.editarUsuario(usu.id)">Alterar</button></td>
+        <td><button @click="this.excluirUsuraio(usu.id)">Excluir</button></td>
       </tr>
     </tbody>
   </table>
@@ -60,55 +83,69 @@
 import axios from "axios";
 
 export default {
-  name: "FormCategoria",
+  name: "FormUsuario",
   props: {
     msg: String,
   },
   data() {
     return {
       id: 0,
-      nome: "",
+      name: "",
+      senha: "",
+      nivel: "",
       formOn: false,
-      categorias: [],
+      usuarios: [],
     };
   },
   methods: {
     mostrarForm(flag) {
       this.formOn = flag;
     },
-    gravarCategoria() {
-      let url = "http://localhost:8080/apis/categoria";
-      let data = { id: this.id, nome: this.nome };
+    resetarForm() {
+      this.id = 0;
+      this.name = "";
+      this.senha = "";
+      this.nivel = "";
+    },
+    gravarUsuario() {
+      let url = "http://localhost:8080/apis/usuario";
+      let data = {
+        id: this.id,
+        name: this.name,
+        senha: this.senha,
+        nivel: this.nivel,
+      };
       axios
         .post(url, data)
         .then((response) => {
           this.carregarTabela();
-          this.id = 0;
-          this.nome = "";
-          console.log("Mensagem do Backend: " + response);
+          this.resetarForm();
           this.mostrarForm(false);
+          console.log("Mensagem do Backend: " + response);
         })
         .catch((error) => {
           alert("Erro ao gravar!! " + error);
         });
       this.mostrarForm(false);
     },
-    editarCategoria(id) {
+    editarUsuario(id) {
       this.mostrarForm(true);
       axios
-        .get("http://localhost:8080/apis/categoria/" + id)
+        .get("http://localhost:8080/apis/usuario/" + id)
         .then((result) => {
-          const categoria = result.data;
-          this.id = categoria.id;
-          this.nome = categoria.nome;
+          const usuario = result.data;
+          this.id = usuario.id;
+          this.name = usuario.name;
+          this.senha = usuario.senha;
+          this.nivel = usuario.nivel;
         })
         .catch((error) => {
           alert("Deu errado meu parcero!! " + error);
         });
     },
-    excluirCategoria(id) {
+    excluirUsuario(id) {
       axios
-        .delete("http://localhost:8080/apis/categoria/" + id)
+        .delete("http://localhost:8080/apis/usuario/" + id)
         .then((result) => {
           //mostrar a tabela novamente após a remoção
           this.carregarTabela();
@@ -120,9 +157,9 @@ export default {
     },
     carregarTabela() {
       axios
-        .get("http://localhost:8080/apis/categoria")
+        .get("http://localhost:8080/apis/usuario")
         .then((result) => {
-          this.categorias = result.data;
+          this.usuarios = result.data;
         })
         .catch((error) => {
           alert("Deu errado meu parcero!!" + error);
@@ -131,12 +168,11 @@ export default {
   },
   mounted() {
     this.carregarTabela();
-  },
+  }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 /*Estilo para o formulário*/
 input[type="text"],
 select {
